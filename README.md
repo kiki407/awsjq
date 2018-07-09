@@ -1,4 +1,4 @@
-Because I find little on miller or jq online I did my own thing
+Examples of AWS DOCKER OPENSHIFT outputs filtered and sorted with jq / miller
 ===
 
 ### AWS
