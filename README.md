@@ -27,7 +27,7 @@ aws s3 ls mybucket | mlr --ipprint --ojson label date,time,size,filename | jq
 
 ##### Same as previous but Latest 5 files in reverse datetime order.
 ```
-aws s3 ls mybucket | mlr --ipprint --ojson label date,time,size,filename then sort -r time then sort -r date then head -n 5 | jq
+aws s3 ls mybucket | mlr --ipprint --ojson label date,time,size,filename then sort -r date,time then head -n 4 | jq
 ```
 
 #### CodePipeline
@@ -50,10 +50,20 @@ docker ps -q | xargs docker inspect | jq '[.[] | {"id":(.Id), "name": (.Name), "
 
 ##### All pods per status
 ```
-oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.status.phase)] = .[($item.status.phase)] + [($item.metadata.name)])'
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.status.phase)] += [($item.metadata.name)])'
+```
+
+##### All pods per node then status
+```
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ( {}; .[($item.spec.nodeName)][($item.status.phase)] += [($item.metadata.name)] )'
 ```
 
 ##### All pods per node
 ```
-oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.spec.nodeName)] = .[($item.spec.nodeName)] + [($item.metadata.name)])'
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.spec.nodeName)] += [($item.metadata.name)])'
+```
+
+##### Only the running nodes per pod
+```
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; if $item.status.phase == "Running" then .[($item.spec.nodeName)] += [($item.metadata.name)] else . end )'
 ```
