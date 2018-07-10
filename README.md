@@ -46,3 +46,10 @@ docker ps -q | xargs docker inspect | jq '[.[] | {"id":(.Id), "name": (.Name), "
 ```
 
 
+### OPENSHIFT
+
+##### All pods per status
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.status.phase)] = .[($item.status.phase)] + [($item.metadata.name)])'
+
+##### All pods per node
+oc get pod -a -o wide --all-namespaces -o json | jq 'reduce .items[] as $item ({}; .[($item.spec.nodeName)] = .[($item.spec.nodeName)] + [($item.metadata.name)])'
